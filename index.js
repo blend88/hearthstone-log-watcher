@@ -109,22 +109,6 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
       };
       log.zoneChange('%s moved from %s %s to %s %s.', data.cardName, data.fromTeam, data.fromZone, data.toTeam, data.toZone);
       self.emit('zone-change', data);
-
-      // Only zone transitions show both the player ID and the friendly or opposing zone type. By tracking entities going into
-      // the "PLAY (Hero)" zone we can then set the player's team to FRIENDLY or OPPOSING. Once both players are associated with
-      // a team we can emite the game-start event.
-      if (data.toZone === 'PLAY (Hero)') {
-        parserState.players.forEach(function (player) {
-          if (player.id === data.playerId) {
-            player.team = data.toTeam;
-            parserState.playerCount++;
-            if (parserState.playerCount === 2) {
-              log.gameStart('A game has started.');
-              self.emit('game-start', parserState.players);
-            }
-          }
-        });
-      }
     }
 
     // Check for players entering play and track their team IDs.
@@ -135,6 +119,11 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
         name: parts[1],
         id: parseInt(parts[2])
       });
+      parserState.playerCount++;
+      if (parserState.playerCount === 2) {
+        log.gameStart('A game has started.');
+        self.emit('game-start', parserState.players);
+      }
     }
 
     // Check if the game is over.
