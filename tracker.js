@@ -67,9 +67,9 @@ logWatcher.on('game-start', function (data) {
 logWatcher.on('game-over', function (data) {
   var friendly_player = data[0],
       enemy_player = data[1];
-  var line = Math.floor(Date.now()) + ": game ended : " + friendly_player.name + " result = " + friendly_player.status;
+  var line = Math.floor(Date.now()) + ": game_ended : " + friendly_player.name + " result = " + friendly_player.status;
   add_to_buffer(line);
-  var line = Math.floor(Date.now()) + ": game ended : " + enemy_player.name + " result = " + enemy_player.status;
+  var line = Math.floor(Date.now()) + ": game_ended : " + enemy_player.name + " result = " + enemy_player.status;
   add_to_buffer(line);
   send_buffer();  
 });
