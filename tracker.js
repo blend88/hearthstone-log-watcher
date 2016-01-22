@@ -4,9 +4,10 @@ var LogWatcher = require('hearthstone-log-watcher');
 var logWatcher = new LogWatcher();
 
 var buffer = '';
-var twitch_user_name = 'test_twitch_username';
+var twitch_user_name = 'cmtw105';
 var start_time;
 var end_time;
+var version = '1.0'
 
 var reset_buffer = function() {
   buffer = '';
@@ -45,7 +46,7 @@ var send_buffer = function() {
 }
 
 logWatcher.on('zone-change', function (data) {
-  var line = Math.floor(Date.now()) + ': zone-change - ' + data.cardName + ' has moved from ' + data.fromTeam + ' ' + data.fromZone + ' to ' + data.toTeam + ' ' + data.toZone;
+  var line = Math.floor(Date.now()) + ': zone change - ' + data.cardName + ' has moved from ' + data.fromTeam + ' ' + data.fromZone + ' to ' + data.toTeam + ' ' + data.toZone;
   add_to_buffer(line);
 });
 
@@ -74,14 +75,19 @@ logWatcher.on('game-over', function (data) {
 
 
 logWatcher.on('hero-update', function (data) {
-  var line = Math.floor(Date.now()) + ': hero-update: ' + data.playerId + ' is hero = ' + data.heroName + ' is friendly = ' + data.friendly;
+  var line = Math.floor(Date.now()) + ': hero-update - player_id = ' + data.playerId + ' has hero = ' + data.heroName ;
+  add_to_buffer(line);
+  var friendly = '';
+  if (data.friendly) {
+    friendly = 'not';
+  }
+  var line =  Math.floor(Date.now()) + ': hero-update - player_id = ' + data.playerId + ' is ' + friendly + ' friendly';
   add_to_buffer(line);
 });
 
 
 
 
-console.log('starting tracker.js')
-
+add_to_buffer('starting tracker.js: version = ' + version);
 logWatcher.start();
 
