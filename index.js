@@ -107,6 +107,13 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
         toTeam: parts[7],
         toZone: parts[8]
       };
+      if (data.toZone == 'PLAY (Hero)') {
+        var dataToSend = {playerId: data.playerId,
+                          heroName: data.cardName,
+                          friendly: data.toTeam == 'FRIENDLY'};
+        self.emit('hero-update', dataToSend);
+      }
+
       log.zoneChange('%s moved from %s %s to %s %s.', data.cardName, data.fromTeam, data.fromZone, data.toTeam, data.toZone);
       self.emit('zone-change', data);
     }
@@ -115,9 +122,10 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
     var newPlayerRegex = /\[Power\] GameState\.DebugPrintPower\(\) - TAG_CHANGE Entity=(.*) tag=PLAYER_ID value=(.)$/;
     if (newPlayerRegex.test(line)) {
       var parts = newPlayerRegex.exec(line);
+      var playerId = parseInt(parts[2]);
       parserState.players.push({
         name: parts[1],
-        id: parseInt(parts[2])
+        id: playerId
       });
       parserState.playerCount++;
       if (parserState.playerCount === 2) {
