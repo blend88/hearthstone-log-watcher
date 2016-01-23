@@ -153,6 +153,15 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
       }
     }
 
+    // Check for turn
+    var turnChange = /\[Power\] GameState\.DebugPrintPower\(\) -\s*TAG_CHANGE Entity=(.*) tag=TURN value=(.)$/;
+    if (turnChange.test(line)) {
+      console.log(line);
+      var parts = turnChange.exec(line);
+      var turnChangeData = { value: parts[2]};
+      self.emit('turn-change', turnChangeData);
+    }
+
   });
 };
 

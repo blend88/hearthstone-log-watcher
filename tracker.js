@@ -64,6 +64,10 @@ logWatcher.on('game-start', function (data) {
   add_to_buffer(line);  
 });
 
+logWatcher.on('turn-change', function (data) {
+  add_to_buffer(Math.floor(Date.now()) +  ': turn-change : turn = ' + data.value);
+});
+
 logWatcher.on('game-over', function (data) {
   var friendly_player = data[0],
       enemy_player = data[1];
@@ -87,7 +91,6 @@ logWatcher.on('hero-update', function (data) {
 });
 
 
-
-
+console.log("starting log");
 logWatcher.start();
 
