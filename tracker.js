@@ -15,11 +15,12 @@ var reset_buffer = function() {
 
 var add_to_buffer = function(line) {
   buffer += '\n'+line;
+  console.log(line);
 }
 
 var send_buffer = function() {
   end_time = Math.floor(Date.now())
-  console.log(buffer);
+  // console.log(buffer);
   var url = 'https://alpha.clip.mn/1/hs_client_metadata/'
 
   var data = {
@@ -65,7 +66,7 @@ logWatcher.on('game-start', function (data) {
 });
 
 logWatcher.on('turn-change', function (data) {
-  add_to_buffer(Math.floor(Date.now()) +  ': turn-change : turn = ' + data.value);
+  add_to_buffer(Math.floor(Date.now()) +  ': turn_change : turn = ' + data.value);
 });
 
 logWatcher.on('game-over', function (data) {
