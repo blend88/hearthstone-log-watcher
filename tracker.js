@@ -4,7 +4,7 @@ var LogWatcher = require('hearthstone-log-watcher');
 var logWatcher = new LogWatcher();
 
 var buffer = '';
-var twitch_user_name = 'cmtw105';
+var twitch_user_name = 'abcdefgh';
 var start_time;
 var end_time;
 var version = '1.0'
@@ -18,7 +18,7 @@ var add_to_buffer = function(line) {
 }
 
 var send_buffer = function() {
-  end_time = Math.floor(Date.now())
+  end_time = Math.floor(Date.now());
   console.log(buffer);
   var url = 'https://alpha.clip.mn/1/hs_client_metadata/'
 
@@ -45,48 +45,58 @@ var send_buffer = function() {
   );
 }
 
-logWatcher.on('zone-change', function (data) {
-  var line = Math.floor(Date.now()) + ': zone_change : ' + data.cardName + ' has moved from ' + data.fromTeam + ' ' + data.fromZone + ' to ' + data.toTeam + ' ' + data.toZone;
+logWatcher.on('zone-change', function (obtainedData) {
+  var data = obtainedData.data;
+  var time = obtainedData.time;
+  var line = time + ': zone_change : ' + data.cardName + ' has moved from ' + data.fromTeam + ' ' + data.fromZone + ' to ' + data.toTeam + ' ' + data.toZone;
   add_to_buffer(line);
 });
 
-logWatcher.on('game-start', function (data) {
-  start_time = Math.floor(Date.now())
+logWatcher.on('game-start', function (obtainedData) {
+  var data = obtainedData.data;
+  var time = obtainedData.time;
+  start_time = time
   var friendly_player = data[0],
       enemy_player = data[1];
 
-  add_to_buffer(Math.floor(Date.now()) +  ': game_start : version = ' + version);
-  var line = Math.floor(Date.now()) + ": game_start : " + friendly_player.name + " v/s " + enemy_player.name;
+  add_to_buffer(time +  ': game_start : version = ' + version);
+  var line = time + ": game_start : " + friendly_player.name + " v/s " + enemy_player.name;
   add_to_buffer(line);
-  var line = Math.floor(Date.now()) + ": game_start : " + friendly_player.name + " has id = "  + friendly_player.id;
+  var line = time + ": game_start : " + friendly_player.name + " has id = "  + friendly_player.id;
   add_to_buffer(line);
-  var line = Math.floor(Date.now()) + ": game_start : " + enemy_player.name + " has id = "  + enemy_player.id;
+  var line = time + ": game_start : " + enemy_player.name + " has id = "  + enemy_player.id;
   add_to_buffer(line);  
 });
 
-logWatcher.on('turn-change', function (data) {
-  add_to_buffer(Math.floor(Date.now()) +  ': turn_change : turn = ' + data.value);
+logWatcher.on('turn-change', function (obtainedData) {
+  var data = obtainedData.data;
+  var time = obtainedData.time;
+  add_to_buffer(time +  ': turn_change : turn = ' + data.value);
 });
 
-logWatcher.on('game-over', function (data) {
+logWatcher.on('game-over', function (obtainedData) {
+  var data = obtainedData.data;
+  var time = obtainedData.time;
   var friendly_player = data[0],
       enemy_player = data[1];
-  var line = Math.floor(Date.now()) + ": game_ended : " + friendly_player.name + " result = " + friendly_player.status;
+  var line = time + ": game_ended : " + friendly_player.name + " result = " + friendly_player.status;
   add_to_buffer(line);
-  var line = Math.floor(Date.now()) + ": game_ended : " + enemy_player.name + " result = " + enemy_player.status;
+  var line = time + ": game_ended : " + enemy_player.name + " result = " + enemy_player.status;
   add_to_buffer(line);
   send_buffer();  
 });
 
 
-logWatcher.on('hero-update', function (data) {
-  var line = Math.floor(Date.now()) + ': hero_update : player_id = ' + data.playerId + ' has hero = ' + data.heroName ;
+logWatcher.on('hero-update', function (obtainedData) {
+  var data = obtainedData.data;
+  var time = obtainedData.time;
+  var line = time + ': hero_update : player_id = ' + data.playerId + ' has hero = ' + data.heroName ;
   add_to_buffer(line);
   var friendly = '';
   if (data.friendly) {
     friendly = 'not';
   }
-  var line =  Math.floor(Date.now()) + ': hero_update : player_id = ' + data.playerId + ' is ' + friendly + ' friendly';
+  var line =  time + ': hero_update : player_id = ' + data.playerId + ' is ' + friendly + ' friendly';
   add_to_buffer(line);
 });
 

@@ -72,7 +72,7 @@ LogWatcher.prototype.start = function () {
     fs.closeSync(fileDescriptor);
     fileSize = newFileSize;
 
-    self.parseBuffer(buffer, parserState);
+    self.parseBuffer(buffer, parserState, current.mtime.getTime());
   });
 
   self.stop = function () {
@@ -83,7 +83,7 @@ LogWatcher.prototype.start = function () {
 
 LogWatcher.prototype.stop = function () {};
 
-LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
+LogWatcher.prototype.parseBuffer = function (buffer, parserState, currentTime) {
   var self = this;
 
   if (!parserState) {
@@ -111,11 +111,11 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
         var dataToSend = {playerId: data.playerId,
                           heroName: data.cardName,
                           friendly: data.toTeam == 'FRIENDLY'};
-        self.emit('hero-update', dataToSend);
+        self.emit('hero-update', {data: dataToSend, time: currentTime});
       }
 
       log.zoneChange('%s moved from %s %s to %s %s.', data.cardName, data.fromTeam, data.fromZone, data.toTeam, data.toZone);
-      self.emit('zone-change', data);
+      self.emit('zone-change', {data: data, time: currentTime});
     }
 
     // Check for players entering play and track their team IDs.
@@ -130,7 +130,7 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
       parserState.playerCount++;
       if (parserState.playerCount === 2) {
         log.gameStart('A game has started.');
-        self.emit('game-start', parserState.players);
+        self.emit('game-start', {data: parserState.players, time: currentTime});
       }
     }
 
@@ -148,18 +148,17 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState) {
       // When both players have lost, emit a game-over event.
       if (parserState.gameOverCount === 2) {
         log.gameOver('The current game has ended.');
-        self.emit('game-over', parserState.players);
+        self.emit('game-over', {data: parserState.players, time: currentTime});
         parserState.reset();
       }
     }
 
     // Check for turn
-    var turnChange = /\[Power\] GameState\.DebugPrintPower\(\) -\s*TAG_CHANGE Entity=(.*) tag=TURN value=(.)$/;
+    var turnChange = /\[Power\] GameState\.DebugPrintPower\(\) -\s*TAG_CHANGE Entity=(.*) tag=TURN value=(.*)$/;
     if (turnChange.test(line)) {
-      console.log(line);
       var parts = turnChange.exec(line);
       var turnChangeData = { value: parts[2]};
-      self.emit('turn-change', turnChangeData);
+      self.emit('turn-change', {data: turnChangeData, time: currentTime});
     }
 
   });
