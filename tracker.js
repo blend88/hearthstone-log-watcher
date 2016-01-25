@@ -4,7 +4,7 @@ var LogWatcher = require('hearthstone-log-watcher');
 var logWatcher = new LogWatcher();
 
 var buffer = '';
-var twitch_user_name = 'abcdefgh';
+var twitch_user_name = 'testing-with-farhan';
 var start_time;
 var end_time;
 var version = '1.0'

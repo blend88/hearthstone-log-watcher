@@ -56,7 +56,7 @@ LogWatcher.prototype.start = function () {
   log.main('Log watcher started.');
   // Begin watching the Hearthstone log file.
   var fileSize = fs.statSync(self.options.logFile).size;
-  fs.watchFile(self.options.logFile, function (current, previous) {
+  fs.watchFile(self.options.logFile, {persistent: true, interval: 1000 }, function (current, previous) {
     if (current.mtime <= previous.mtime) { return; }
 
     // We're only going to read the portion of the file that we have not read so far.
