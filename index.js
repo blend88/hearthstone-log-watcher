@@ -93,6 +93,18 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState, currentTime) {
   // Iterate over each line in the buffer.
   buffer.toString().split(this.options.endOfLineChar).forEach(function (line) {
 
+    // Check for player entityID. This will allow us to map playername with playerID
+    var playerEntityRegex = /\[Power\] GameState.DebugPrintPower\(\) -\s*Player EntityID=(.) PlayerID=(.) GameAccountId=/
+    if (playerEntityRegex.test(line)) {
+        var parts = playerEntityRegex.exec(line);
+        var entityId = parseInt(parts[1]);
+        var playerId = parseInt(parts[2]);
+        parserState.players.push({
+            entity: entityId,
+            id: playerId
+        });
+    }
+
     // Check if a card is changing zones.
     var zoneChangeRegex = /^\[Zone\] ZoneChangeList.ProcessChanges\(\) - id=\d* local=.* \[name=(.*) id=(\d*) zone=.* zonePos=\d* cardId=(.*) player=(\d)\] zone from ?(FRIENDLY|OPPOSING)? ?(.*)? -> ?(FRIENDLY|OPPOSING)? ?(.*)?$/
     if (zoneChangeRegex.test(line)) {
@@ -119,15 +131,20 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState, currentTime) {
     }
 
     // Check for players entering play and track their team IDs.
-    var newPlayerRegex = /\[Power\] GameState\.DebugPrintPower\(\) - TAG_CHANGE Entity=(.*) tag=PLAYER_ID value=(.)$/;
+    var newPlayerRegex = /TAG_CHANGE entity=\[id=(.) cardId= name=(.*)\] tag=PLAYSTATE value=PLAYING/;
     if (newPlayerRegex.test(line)) {
       var parts = newPlayerRegex.exec(line);
-      var playerId = parseInt(parts[2]);
-      parserState.players.push({
-        name: parts[1],
-        id: playerId
-      });
+      var entityId = parseInt(parts[1]);
+    
+        //match player name with playerid
+        parserState.players.forEach(function (player) {
+            if (player.entity === entityId) {
+                player.name = parts[2];
+            }
+        });
+      
       parserState.playerCount++;
+      
       if (parserState.playerCount === 2) {
         log.gameStart('A game has started.');
         self.emit('game-start', {data: parserState.players, time: currentTime});
