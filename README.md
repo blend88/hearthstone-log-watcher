@@ -71,17 +71,20 @@ The available events you can listen for are as follows:
 
 The `game-start` event fires at the beginning of a match when the watcher has gathered enough data from the log to determine which of the two players is the local player. It was a lot more complicated to figure that out than one might think, so this event is pretty valuable because it eliminates the guess work. Not even the hearthstats deck tracker can determine what player is the local player ;)
 
-Callback Arguments:
-
-- **players** - an array of the players in the game and what team they are on (friendly or opposing);
-
-Example player object:
+Example Callback Arguments:
 
 ```javascript
 {
-  name: 'Hologrid',
-  id: 1,
-  team: 'FRIENDLY'
+  data: [
+    {
+      name: 'Hologrid',
+      id: 1,
+      entity: 1,
+      team: 'FRIENDLY'
+    },
+    ...
+  ],
+  time: 1469196539000
 }
 ```
 
@@ -89,18 +92,39 @@ Example player object:
 
 The `game-over` event fires at the end of a match and includes additional data showing who won and who lost.
 
-Callback Arguments:
-
-- **players** - the same array of players from the `game-start` event except the players have an additional status property.
-
-Example player object:
+Example Callback Arguments:
 
 ```javascript
 {
-  name: 'Hologrid',
-  id: 1,
-  team: 'FRIENDLY',
-  status: 'WON'
+  data: [
+    {
+      name: 'Hologrid',
+      id: 1,
+      entity: 1,
+      team: 'FRIENDLY',
+      status: 'WON'
+    },
+    ...
+  ],
+  time: 1469196539000
+}
+```
+
+
+### **hero-update**
+
+The `hero-update` event fires at the beginning of a match when heros are assigned to players.
+
+Example callback argument:
+
+```javascript
+{
+  data: {
+    playerId: 1,
+    heroName: '',
+    friendly: 'FRIENDLY'
+  },
+  time: 1469196539000
 }
 ```
 
@@ -129,21 +153,68 @@ Example zone change data object:
 
 ```javascript
 {
-  cardName: 'Knife Juggler',
-  cardId: 'NEW1_019',
-  entityId: 37,
-  fromTeam: 'OPPOSING',
-  fromZone: 'PLAY',
-  toTeam: 'OPPOSING',
-  toZone: 'GRAVEYARD'
+  data: {
+    cardName: 'Knife Juggler',
+    cardId: 'NEW1_019',
+    entityId: 37,
+    fromTeam: 'OPPOSING',
+    fromZone: 'PLAY',
+    toTeam: 'OPPOSING',
+    toZone: 'GRAVEYARD'
+  },
+  time: 1469196539000
 }
 ```
 
 Don't be confused by the `entityId` field. The ID is not consistent across games. Rather, the entity ID is an identifier that is assigned to that specific card for the duration of just that match. It is what you need in order to track a card's status as the game progresses. For example, if you have two Knife Jugglers in your deck, you need to be able to tell which one is which. The entity ID is the only way to track changes to a specific card during that game. The `cardId` field never changes however, and you may use it to look up card data in a card database such as the one found at [HearthstoneJSON.com](http://hearthstonejson.com).
 
-## Planned
+### **spectate-start**
 
-Right now the log watcher only emits three events. The Hearthstone log contains A LOT of data and I believe there are a lot more events that this module *could* emit. For example, I believe there is enough data in the log to even track the damage/buff states of the minions in play. I'm going to experiment with the log more and see if I can pull out more useful data and provide useful events.
+Fired when you start spectating another game.
+
+Callback Arguments:
+
+- **time** - event timestamp
+
+Example Callback Arguments:
+
+```javascript
+{ 
+  time: 1469196539000 
+}
+```
+
+### **spectate-end**
+
+Fired when you stop spectating a game.
+
+Callback Arguments:
+
+- **time** - event timestamp
+
+Example Callback Arguments:
+
+```javascript
+{ 
+  time: 1469196539000 
+}
+```
+
+
+### **turn-change**
+
+Fired when ever the turn changes.
+
+Example Callback Arguments:
+
+```javascript
+{ 
+  data: {
+    value: 6
+  },
+  time: 1469196539000 
+}
+```
 
 ## Frequently Asked Questions
 
