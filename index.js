@@ -178,6 +178,17 @@ LogWatcher.prototype.parseBuffer = function (buffer, parserState, currentTime) {
       self.emit('turn-change', {data: turnChangeData, time: currentTime});
     }
 
+    // Check for spectacting
+    var spectateStart = /Start Spectator Game/;
+    if (spectateStart.test(line)) {
+      self.emit('spectate-start', {time: currentTime});
+    }
+
+    var spectateEnd = /End Spectator Game/;
+    if (spectateEnd.test(line)) {
+      self.emit('spectate-end', {time: currentTime});
+    }
+
   });
 };
 
